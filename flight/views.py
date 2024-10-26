@@ -45,35 +45,16 @@ def index(request):
         destination = request.POST.get("Destination")
         depart_date = request.POST.get("DepartDate")
         seat = request.POST.get("SeatClass")
-        trip_type = request.POST.get("TripType")
-        if trip_type == "1":
-            return render(
-                request,
-                "flight/index.html",
-                {
-                    "origin": origin,
-                    "destination": destination,
-                    "depart_date": depart_date,
-                    "seat": seat.lower(),
-                    "trip_type": trip_type,
-                },
-            )
-        elif trip_type == "2":
-            return_date = request.POST.get("ReturnDate")
-            return render(
-                request,
-                "flight/index.html",
-                {
-                    "min_date": min_date,
-                    "max_date": max_date,
-                    "origin": origin,
-                    "destination": destination,
-                    "depart_date": depart_date,
-                    "seat": seat.lower(),
-                    "trip_type": trip_type,
-                    "return_date": return_date,
-                },
-            )
+        return render(
+            request,
+            "flight/index.html",
+            {
+                "origin": origin,
+                "destination": destination,
+                "depart_date": depart_date,
+                "seat": seat.lower(),
+            },
+        )
     else:
         return render(
             request, "flight/index.html", {"min_date": min_date, "max_date": max_date}
@@ -163,16 +144,8 @@ def query(request, q):
 def flight(request):
     o_place = request.GET.get("Origin")
     d_place = request.GET.get("Destination")
-    trip_type = request.GET.get("TripType")
     departdate = request.GET.get("DepartDate")
     depart_date = datetime.strptime(departdate, "%Y-%m-%d")
-    return_date = None
-    if trip_type == "2":
-        returndate = request.GET.get("ReturnDate")
-        return_date = datetime.strptime(returndate, "%Y-%m-%d")
-        flightday2 = Week.objects.get(number=return_date.weekday())  ##
-        origin2 = Place.objects.get(code=d_place.upper())  ##
-        destination2 = Place.objects.get(code=o_place.upper())  ##
     seat = request.GET.get("SeatClass")
 
     flightday = Week.objects.get(number=depart_date.weekday())
@@ -193,21 +166,6 @@ def flight(request):
             max_price = 0
             min_price = 0
 
-        if trip_type == "2":  ##
-            flights2 = (
-                Flight.objects.filter(
-                    depart_day=flightday2, origin=origin2, destination=destination2
-                )
-                .exclude(economy_fare=0)
-                .order_by("economy_fare")
-            )  ##
-            try:
-                max_price2 = flights2.last().economy_fare  ##
-                min_price2 = flights2.first().economy_fare  ##
-            except:
-                max_price2 = 0  ##
-                min_price2 = 0  ##
-
     elif seat == "business":
         flights = (
             Flight.objects.filter(
@@ -222,21 +180,6 @@ def flight(request):
         except:
             max_price = 0
             min_price = 0
-
-        if trip_type == "2":  ##
-            flights2 = (
-                Flight.objects.filter(
-                    depart_day=flightday2, origin=origin2, destination=destination2
-                )
-                .exclude(business_fare=0)
-                .order_by("business_fare")
-            )  ##
-            try:
-                max_price2 = flights2.last().business_fare  ##
-                min_price2 = flights2.first().business_fare  ##
-            except:
-                max_price2 = 0  ##
-                min_price2 = 0  ##
 
     elif seat == "first":
         flights = (
@@ -253,59 +196,19 @@ def flight(request):
             max_price = 0
             min_price = 0
 
-        if trip_type == "2":  ##
-            flights2 = (
-                Flight.objects.filter(
-                    depart_day=flightday2, origin=origin2, destination=destination2
-                )
-                .exclude(first_fare=0)
-                .order_by("first_fare")
-            )
-            try:
-                max_price2 = flights2.last().first_fare  ##
-                min_price2 = flights2.first().first_fare  ##
-            except:
-                max_price2 = 0  ##
-                min_price2 = 0  ##    ##
+    flight1Id = 6
 
-    # print(calendar.day_name[depart_date.weekday()])
-    if trip_type == "2":
-        return render(
-            request,
-            "flight/search.html",
-            {
-                "flights": flights,
-                "origin": origin,
-                "destination": destination,
-                "flights2": flights2,  ##
-                "origin2": origin2,  ##
-                "destination2": destination2,  ##
-                "seat": seat.capitalize(),
-                "trip_type": trip_type,
-                "depart_date": depart_date,
-                "return_date": return_date,
-                "max_price": math.ceil(max_price / 100) * 100,
-                "min_price": math.floor(min_price / 100) * 100,
-                "max_price2": math.ceil(max_price2 / 100) * 100,  ##
-                "min_price2": math.floor(min_price2 / 100) * 100,  ##
-            },
-        )
-    else:
-        return render(
-            request,
-            "flight/search.html",
-            {
-                "flights": flights,
-                "origin": origin,
-                "destination": destination,
-                "seat": seat.capitalize(),
-                "trip_type": trip_type,
-                "depart_date": depart_date,
-                "return_date": return_date,
-                "max_price": math.ceil(max_price / 100) * 100,
-                "min_price": math.floor(min_price / 100) * 100,
-            },
-        )
+    return render(
+        request,
+        "flight/search.html",
+        {
+            "flightID": flight1Id,
+            "origin": origin,
+            "destination": depart_date,
+            "seat": seat.capitalize(),
+            "depart_date": "07-12-2024",
+        },
+    )
 
 
 def review(request):
@@ -394,23 +297,14 @@ def book(request):
             flight1 = Flight.objects.get(id=flight_1)
             if f2:
                 flight2 = Flight.objects.get(id=flight_2)
-            passengerscount = request.POST["passengersCount"]
-            passengers = []
-            for i in range(1, int(passengerscount) + 1):
-                fname = request.POST[f"passenger{i}FName"]
-                lname = request.POST[f"passenger{i}LName"]
-                gender = request.POST[f"passenger{i}Gender"]
-                passengers.append(
-                    Passenger.objects.create(
-                        first_name=fname, last_name=lname, gender=gender.lower()
-                    )
-                )
+            # passengerscount = request.POST["passengersCount"]
+            passengerscount = 5
+           
             coupon = request.POST.get("coupon")
 
             try:
                 ticket1 = createticket(
                     request.user,
-                    passengers,
                     passengerscount,
                     flight1,
                     flight_1date,
@@ -423,7 +317,6 @@ def book(request):
                 if f2:
                     ticket2 = createticket(
                         request.user,
-                        passengers,
                         passengerscount,
                         flight2,
                         flight_2date,

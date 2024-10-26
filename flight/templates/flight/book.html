@@ -15,11 +15,6 @@
             <input type="hidden" name="flight1" value="{{flight1.id}}">
             <input type="hidden" name="flight1Date" value='{{flight1ddate | date:"d-m-Y"}}'>
             <input type="hidden" name="flight1Class" value="{{seat}}">
-            {% if flight2 %}
-                <input type="hidden" name="flight2" value="{{flight2.id}}">
-                <input type="hidden" name="flight2Class" value="{{seat}}">
-                <input type="hidden" name="flight2Date" value='{{flight2ddate | date:"d-m-Y"}}'>
-            {% endif %}
             <div class="row main-row">
                 <div class="col-8">
                 <div class="ticket-details">
@@ -55,50 +50,7 @@
                             <div class="airport">{{flight1.destination.airport}}</div>
                         </div>
                     </div>
-                    {% if flight2 %}
-                        <!--Round Trip-->
-                        <div style="padding: 0 15px;" class="round-seperator"><hr style="border-top: 0.5px dashed rgba(0,0,0,.1);"></div>
-                        <!--/Round Trip-->
-                        <div class="media-airline">
-                            <div>
-                                <div class="brand">{{flight2.airline}}</div>
-                                <div>&nbsp;&middot;&nbsp;</div>
-                                <div class="plane-name">{{flight2.plane}}</div>
-                                <div>&nbsp;&middot;&nbsp;</div>
-                                <div class="plane-name">{{seat}}</div>
-                            </div>
-                        </div>
-                        <div class="row ticket-details-div">
-                            <div class="col-3 airline-name">
-                                <div class="brand">{{flight2.airline}}</div>
-                                <div class="plane-name">{{flight2.plane}}</div>
-                            </div>
-                            <div class="col-3 depart-time">
-                                <div class="time">{{flight2.depart_time | time:'H:i'}}</div>
-                                <div class="date ddate">{{flight2ddate | date:"D, d M y"}}</div>
-                                <div class="place">{{flight2.origin.city}}</div>
-                                <div class="airport">{{flight2.origin.airport}}</div>
-                            </div>
-                            <div class="col-3 time-details">
-                                <div class="duration" data-value="{{flight2.duration}}"></div>
-                            </div>
-                            <div class="col-3 arrival-time">
-                                <div class="time">{{flight2.arrival_time | time:'H:i'}}</div>
-                                <div class="date adate">{{flight2adate | date:"D, d M y"}}</div>
-                                <div class="place">{{flight2.destination.city}}</div>
-                                <div class="airport">{{flight2.destination.airport}}</div>
-                            </div>
-                        </div>
-                    {% endif %}
-                    <hr>
-                    <div class="baggage-details">
-
-                        <svg width="1em" height="1.5em" viewBox="0 3 16 16" class="bi bi-bag" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" d="M8 1a2.5 2.5 0 0 0-2.5 2.5V4h5v-.5A2.5 2.5 0 0 0 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5v9a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V5H2z"/>
-                        </svg> 
-
-                        30 Kgs Check-in, 7 Kgs Cabin
-                    </div>
+                   
                 </div>
                 <div class="traveller-details">
                     <div class="traveller-head">
@@ -116,8 +68,6 @@
                             <div class="col-3 ci">
                                 Country Code
                                 <select name="countryCode" class="custom-select">
-                                    <option data-countryCode="BD" value="880">Bangladesh (+880)</option>
-                                    <option data-countryCode="IN" value="91">India (+91)</option>
                                     <option data-countryCode="DZ" value="213">Algeria (+213)</option>
                                     <option data-countryCode="AD" value="376">Andorra (+376)</option>
                                     <option data-countryCode="AO" value="244">Angola (+244)</option>
@@ -131,6 +81,7 @@
                                     <option data-countryCode="AZ" value="994">Azerbaijan (+994)</option>
                                     <option data-countryCode="BS" value="1242">Bahamas (+1242)</option>
                                     <option data-countryCode="BH" value="973">Bahrain (+973)</option>
+                                    <option data-countryCode="BD" value="880">Bangladesh (+880)</option>
                                     <option data-countryCode="BB" value="1246">Barbados (+1246)</option>
                                     <option data-countryCode="BY" value="375">Belarus (+375)</option>
                                     <option data-countryCode="BE" value="32">Belgium (+32)</option>
@@ -202,7 +153,7 @@
                                     <option data-countryCode="HK" value="852">Hong Kong (+852)</option>
                                     <option data-countryCode="HU" value="36">Hungary (+36)</option>
                                     <option data-countryCode="IS" value="354">Iceland (+354)</option>
-                                    <!-- <option data-countryCode="IN" value="91">India (+91)</option> -->
+                                    <option data-countryCode="IN" value="91">India (+91)</option>
                                     <option data-countryCode="ID" value="62">Indonesia (+62)</option>
                                     <option data-countryCode="IR" value="98">Iran (+98)</option>
                                     <option data-countryCode="IQ" value="964">Iraq (+964)</option>
@@ -348,54 +299,7 @@
                         &nbsp;
                     </div>
                 </div>
-                <div class="traveller-details individual-traveller-div">
-                    <div class="traveller-head">
-                        <h5>Passenger Details</h5>
-                        <h6><span>0</span> Passengers</h6>
-                    </div>
-                    <hr>
-                    <input type="hidden" id="p-count" name="passengersCount" value="0">
-                    <div class="each-traveller-div">
-                    </div>
-                    <div class="row each-traveller no-traveller">
-                        <div>
-                            <span class="traveller-name"></span>
-                            You have not added any adults to the list
-                        </div>
-                    </div>
-                    <div class="row add-traveller-div collapse" id="collapseExample">
-                        <div class="note-name"><span>IMPORTANT :</span> Enter your name as it is mentioned on your passport or any government approved ID.</div>
-                        <div class="row form-group add-traveller-div-name">
-                            <div class="col">
-                                <input type="text" class="form-control" id="fname" placeholder="First name">
-                            </div>
-                            <div class="col">
-                                <input type="text" class="form-control" id="lname" placeholder="Last name">
-                            </div>
-                        </div>
-                        
-                        <div class="row form-group radio-div">
-                            <div class="form-check-inline cd">
-                                Gender: 
-                            </div>
-                            <div class="form-check-inline">
-                                <label class="form-check-label">
-                                    <input type="radio" class="form-check-input gender" value="male">Male
-                                </label>
-                            </div>
-                            <div class="form-check-inline">
-                                <label class="form-check-label">
-                                    <input type="radio" class="form-check-input gender" value="female">Female
-                                </label>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-primary btn-light" style="margin-right: auto;" onclick="add_traveller()">Add</button>
-                    </div>
-                    <hr>
-                    <div class="add-traveller">
-                        <button class="add-traveller-btn text-uppercase btn"  type="button" data-toggle="collapse" data-target="#collapseExample">+ ADD ADULT</button>
-                    </div>
-                </div>
+                
                 <div class="payment-btn" style="background-color: transparent;">
                     <button type="submit" class="btn btn-primary btn-danger">Proceed to payment</button>
                 </div>
@@ -409,7 +313,7 @@
                             <div class="base-fae-label">Base Fare: </div>
                             <div class="base-fare-value">
                                 {% if seat == 'First' %}
-                                    ₹ <span>
+                                ৳ <span>
                                         {% if flight2 %}
                                             {{flight1.first_fare | add:flight2.first_fare}}
                                         {% else %}
@@ -418,7 +322,7 @@
                                         </span>
                                     <input type="hidden" id="basefare" value="{% if flight2 %}{{flight1.first_fare | add:flight2.first_fare}}{% else %}{{flight1.first_fare}}{% endif %}">
                                 {% elif seat == 'Business' %}
-                                    ₹ <span>
+                                ৳ <span>
                                         {% if flight2 %}
                                             {{flight1.business_fare | add:flight2.business_fare}}
                                         {% else %}
@@ -427,7 +331,7 @@
                                         </span>
                                     <input type="hidden" id="basefare" value="{% if flight2 %}{{flight1.business_fare | add:flight2.business_fare}}{% else %}{{flight1.business_fare}}{% endif %}">
                                 {% elif seat == 'Economy' %}
-                                    ₹ <span>
+                                ৳ <span>
                                         {% if flight2 %}
                                             {{flight1.economy_fare | add:flight2.economy_fare}}
                                         {% else %}
@@ -440,7 +344,7 @@
                         </div>
                         <div class="row surcharges">
                             <div class="surcharges-label">Fee & Surcharges: </div>
-                            <div class="surcharges-value">₹ <span>{{fee}}</span></div>
+                            <div class="surcharges-value">৳ <span>{{fee}}</span></div>
                             <input type="hidden" id="fee" value="{{fee}}">
                         </div>
                         <hr>
@@ -448,7 +352,7 @@
                             <div class="total-fare-label">Total Fare: </div>
                             <div class="total-fare-value">
                                 {% if seat == 'First' %}
-                                    ₹ <span>
+                                ৳ <span>
                                         {% if flight2 %}
                                             {{flight1.first_fare | add:flight2.first_fare | add:fee}}
                                         {% else %}
@@ -456,7 +360,7 @@
                                         {% endif %}
                                     </span>
                                 {% elif seat == 'Business' %}
-                                    ₹ <span>
+                                ৳ <span>
                                         {% if flight2 %}
                                             {{flight1.business_fare | add:flight2.business_fare | add:fee}}
                                         {% else %}
@@ -464,7 +368,7 @@
                                         {% endif %}
                                     </span>
                                 {% elif seat == 'Economy' %}
-                                    ₹ <span>
+                                ৳ <span>
                                         {% if flight2 %}
                                             {{flight1.economy_fare | add:flight2.economy_fare | add:fee}}
                                         {% else %}
