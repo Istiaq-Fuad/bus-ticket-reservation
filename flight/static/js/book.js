@@ -133,8 +133,8 @@ const maleSeats = ["D2", "E4"];
 const selectedSeats = new Set();
 
 function createSeatLayout() {
-  const busLayout = document.getElementById("busLayout");
-  busLayout.innerHTML = "";
+  const flightLayout = document.getElementById("flightLayout");
+  flightLayout.innerHTML = "";
 
   seatLayout.forEach((row) => {
     row.forEach((seatNumber) => {
@@ -158,7 +158,7 @@ function createSeatLayout() {
 
       seat.textContent = seatNumber;
       seat.addEventListener("click", () => toggleSeat(seatNumber));
-      busLayout.appendChild(seat);
+      flightLayout.appendChild(seat);
     });
   });
   updateSelectedSeatsList();

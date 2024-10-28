@@ -321,15 +321,15 @@
                                         {% endif %}
                                         </span>
                                     <input type="hidden" id="basefare" value="{% if flight2 %}{{flight1.first_fare | add:flight2.first_fare}}{% else %}{{flight1.first_fare}}{% endif %}">
-                                {% elif seat == 'Business' %}
+                                {% elif seat == 'Flightiness' %}
                                 ৳ <span>
                                         {% if flight2 %}
-                                            {{flight1.business_fare | add:flight2.business_fare}}
+                                            {{flight1.flightiness_fare | add:flight2.flightiness_fare}}
                                         {% else %}
-                                            {{flight1.business_fare}}
+                                            {{flight1.flightiness_fare}}
                                         {% endif %}
                                         </span>
-                                    <input type="hidden" id="basefare" value="{% if flight2 %}{{flight1.business_fare | add:flight2.business_fare}}{% else %}{{flight1.business_fare}}{% endif %}">
+                                    <input type="hidden" id="basefare" value="{% if flight2 %}{{flight1.flightiness_fare | add:flight2.flightiness_fare}}{% else %}{{flight1.flightiness_fare}}{% endif %}">
                                 {% elif seat == 'Economy' %}
                                 ৳ <span>
                                         {% if flight2 %}
@@ -359,12 +359,12 @@
                                             {{flight1.first_fare | add:fee}}
                                         {% endif %}
                                     </span>
-                                {% elif seat == 'Business' %}
+                                {% elif seat == 'Flightiness' %}
                                 ৳ <span>
                                         {% if flight2 %}
-                                            {{flight1.business_fare | add:flight2.business_fare | add:fee}}
+                                            {{flight1.flightiness_fare | add:flight2.flightiness_fare | add:fee}}
                                         {% else %}
-                                            {{flight1.business_fare | add:fee}}
+                                            {{flight1.flightiness_fare | add:fee}}
                                         {% endif %}
                                     </span>
                                 {% elif seat == 'Economy' %}

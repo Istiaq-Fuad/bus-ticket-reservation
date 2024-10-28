@@ -321,7 +321,7 @@
                                                     ₹ 
                                                     <span>
                                                         {% if seat == 'Economy' %}{{flight.economy_fare}}{% endif %}
-                                                        {% if seat == 'Business' %}{{flight.business_fare}}{% endif %}
+                                                        {% if seat == 'Flightiness' %}{{flight.flightiness_fare}}{% endif %}
                                                         {% if seat == 'First' %}{{flight.first_fare}}{% endif %}
                                                     </span>
                                                 </h5>
@@ -587,7 +587,7 @@
                                                         ₹ 
                                                         <span>
                                                             {% if seat == 'Economy' %}{{flight2.economy_fare}}{% endif %}
-                                                            {% if seat == 'Business' %}{{flight2.business_fare}}{% endif %}
+                                                            {% if seat == 'Flightiness' %}{{flight2.flightiness_fare}}{% endif %}
                                                             {% if seat == 'First' %}{{flight2.first_fare}}{% endif %}
                                                         </span>
                                                     </h5>
@@ -598,7 +598,7 @@
 
                                                     {% if trip_type == '2' %}
                                                         {% if forloop.couter == 1 %}checked{% endif %}
-                                                        <input type="radio" class="flight2-radio r-b" name="test2" value="{{flight2.id}}" data-plane='{{flight2.plane}}' data-depart='{{flight2.depart_time|time:"H:i"}}' data-arrive='{{flight2.arrival_time|time:"H:i"}}' data-fare="{% if seat == 'Economy' %} {{flight2.economy_fare}} {% elif seat == 'Business' %} {{flight2.business_fare}} {% else %} {{flight2.first_fare}} {% endif %}" {% if forloop.counter == 1 %}checked{% endif %}>
+                                                        <input type="radio" class="flight2-radio r-b" name="test2" value="{{flight2.id}}" data-plane='{{flight2.plane}}' data-depart='{{flight2.depart_time|time:"H:i"}}' data-arrive='{{flight2.arrival_time|time:"H:i"}}' data-fare="{% if seat == 'Economy' %} {{flight2.economy_fare}} {% elif seat == 'Flightiness' %} {{flight2.flightiness_fare}} {% else %} {{flight2.first_fare}} {% endif %}" {% if forloop.counter == 1 %}checked{% endif %}>
                                                     {% else %}
                                                         <form action="{% url 'review' %}" method="GET" style="display: flex;">
                                                             <input type="hidden" name="flight1Id" value="{{flight2.id}}">
@@ -650,8 +650,8 @@
                         <span id="select-f1-fare">
                             {% if seat == "Economy" %}
                                 {{flights.all.0.economy_fare}}
-                            {% elif seat == "Business" %}
-                                {{flights.all.0.business_fare}}
+                            {% elif seat == "Flightiness" %}
+                                {{flights.all.0.flightiness_fare}}
                             {% else %}
                                 {{flights.all.0.first_fare}}
                             {% endif %}
@@ -680,8 +680,8 @@
                             <span id="select-f2-fare">
                                 {% if seat == "Economy" %}
                                     {{flights2.all.0.economy_fare}}
-                                {% elif seat == "Business" %}
-                                    {{flights2.all.0.business_fare}}
+                                {% elif seat == "Flightiness" %}
+                                    {{flights2.all.0.flightiness_fare}}
                                 {% else %}
                                     {{flights2.all.0.first_fare}}
                                 {% endif %}
@@ -712,16 +712,16 @@
                                 {% if flights2 %}
                                     {% if seat == "Economy" %}
                                         {{flights.all.0.economy_fare | add:flights2.all.0.economy_fare}}
-                                    {% elif seat == "Business" %}
-                                        {{flights.all.0.business_fare | add:flights2.all.0.business_fare}}
+                                    {% elif seat == "Flightiness" %}
+                                        {{flights.all.0.flightiness_fare | add:flights2.all.0.flightiness_fare}}
                                     {% else %}
                                         {{flights.all.0.first_fare | add:flights2.all.0.first_fare}}
                                     {% endif %}
                                 {% else %}
                                     {% if seat == "Economy" %}
                                         {{flights.all.0.economy_fare}}
-                                    {% elif seat == "Business" %}
-                                        {{flights.all.0.business_fare}}
+                                    {% elif seat == "Flightiness" %}
+                                        {{flights.all.0.flightiness_fare}}
                                     {% else %}
                                         {{flights.all.0.first_fare}}
                                     {% endif %}
@@ -758,16 +758,16 @@
                                     {% if flights2 %}
                                         {% if seat == "Economy" %}
                                             {{flights.all.0.economy_fare | add:flights2.all.0.economy_fare}}
-                                        {% elif seat == "Business" %}
-                                            {{flights.all.0.business_fare | add:flights2.all.0.business_fare}}
+                                        {% elif seat == "Flightiness" %}
+                                            {{flights.all.0.flightiness_fare | add:flights2.all.0.flightiness_fare}}
                                         {% else %}
                                             {{flights.all.0.first_fare | add:flights2.all.0.first_fare}}
                                         {% endif %}
                                     {% else %}
                                         {% if seat == "Economy" %}
                                             {{flights.all.0.economy_fare}}
-                                        {% elif seat == "Business" %}
-                                            {{flights.all.0.business_fare}}
+                                        {% elif seat == "Flightiness" %}
+                                            {{flights.all.0.flightiness_fare}}
                                         {% else %}
                                             {{flights.all.0.first_fare}}
                                         {% endif %}

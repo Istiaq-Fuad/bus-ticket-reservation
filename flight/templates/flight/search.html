@@ -20,7 +20,7 @@
             font-family: Arial, sans-serif;
         }
 
-        .bus-layout {
+        .flight-layout {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
@@ -100,7 +100,7 @@
     </style>
     <div class="booking-container">
         <h2>Select Your Seats</h2>
-        <div class="bus-layout" id="busLayout"></div>
+        <div class="flight-layout" id="flightLayout"></div>
         
         <div class="legend">
             <div class="legend-item">
@@ -136,7 +136,7 @@
                     <input type="hidden" name="seatClass" value="{{ seat }}">
                     <input type="hidden" id="selectedSeatsCount" name="selectedSeatsCount" value="{{0}}">
                     <button class="btn btn-primary btn-danger o-b" type="submit">
-                        Book Flight <!--&#8594;-->
+                        Book Bus <!--&#8594;-->
                     </button>
                 </form>
         </div>
@@ -163,8 +163,8 @@
         const selectedSeats = new Set();
 
         function createSeatLayout() {
-            const busLayout = document.getElementById('busLayout');
-            busLayout.innerHTML = '';
+            const flightLayout = document.getElementById('flightLayout');
+            flightLayout.innerHTML = '';
 
             seatLayout.forEach(row => {
                 row.forEach(seatNumber => {
@@ -188,7 +188,7 @@
 
                     seat.textContent = seatNumber;
                     seat.addEventListener('click', () => toggleSeat(seatNumber));
-                    busLayout.appendChild(seat);
+                    flightLayout.appendChild(seat);
                 });
             });
             updateSelectedSeatsList();

@@ -12,7 +12,7 @@ from capstone.utils import render_to_pdf, createticket
 
 # Fee and Surcharge variable
 from .constant import FEE
-from flight.utils import (
+from .utils import (
     createWeekDays,
     addPlaces,
     addDomesticFlights,
@@ -26,7 +26,7 @@ try:
     if len(Place.objects.all()) == 0:
         addPlaces()
 
-    if len(Flight.objects.all()) == 0:
+    if len(Bus.objects.all()) == 0:
         print("Do you want to add flights in the Database? (y/n)")
         if input().lower() in ["y", "yes"]:
             addDomesticFlights()
@@ -148,83 +148,39 @@ def flight(request):
     depart_date = datetime.strptime(departdate, "%Y-%m-%d")
     seat = request.GET.get("SeatClass")
 
-    flightday = Week.objects.get(number=depart_date.weekday())
     destination = Place.objects.get(code=d_place.upper())
     origin = Place.objects.get(code=o_place.upper())
-    if seat == "economy":
-        flights = (
-            Flight.objects.filter(
-                depart_day=flightday, origin=origin, destination=destination
-            )
-            .exclude(economy_fare=0)
-            .order_by("economy_fare")
-        )
-        try:
-            max_price = flights.last().economy_fare
-            min_price = flights.first().economy_fare
-        except:
-            max_price = 0
-            min_price = 0
+    print(destination, origin)
 
-    elif seat == "business":
-        flights = (
-            Flight.objects.filter(
-                depart_day=flightday, origin=origin, destination=destination
-            )
-            .exclude(business_fare=0)
-            .order_by("business_fare")
-        )
-        try:
-            max_price = flights.last().business_fare
-            min_price = flights.first().business_fare
-        except:
-            max_price = 0
-            min_price = 0
+    if seat == "economy":
+        bus = Bus.objects.filter(origin=origin, destination=destination).first()
+
+    elif seat == "sleeper":
+        bus = Bus.objects.filter(origin=origin, destination=destination).first()
 
     elif seat == "first":
-        flights = (
-            Flight.objects.filter(
-                depart_day=flightday, origin=origin, destination=destination
-            )
-            .exclude(first_fare=0)
-            .order_by("first_fare")
-        )
-        try:
-            max_price = flights.last().first_fare
-            min_price = flights.first().first_fare
-        except:
-            max_price = 0
-            min_price = 0
-
-    flight1Id = 6
+        bus = Bus.objects.filter(origin=origin, destination=destination).first()
 
     return render(
         request,
         "flight/search.html",
         {
-            "flightID": flight1Id,
+            "busID": bus.id,
             "origin": origin,
             "destination": depart_date,
             "seat": seat.capitalize(),
-            "depart_date": "07-12-2024",
+            "depart_date": depart_date,
         },
     )
 
 
 def review(request):
-    flight_1 = request.GET.get("flight1Id")
+    busID = request.GET.get("flight1Id")
     date1 = request.GET.get("flight1Date")
     seat = request.GET.get("seatClass")
-    round_trip = False
-    if request.GET.get("flight2Id"):
-        round_trip = True
-
-    if round_trip:
-        flight_2 = request.GET.get("flight2Id")
-        date2 = request.GET.get("flight2Date")
 
     if request.user.is_authenticated:
-        flight1 = Flight.objects.get(id=flight_1)
+        flight1 = Bus.objects.get(id=1)
         flight1ddate = datetime(
             int(date1.split("-")[2]),
             int(date1.split("-")[1]),
@@ -232,45 +188,13 @@ def review(request):
             flight1.depart_time.hour,
             flight1.depart_time.minute,
         )
-        flight1adate = flight1ddate + flight1.duration
-        flight2 = None
-        flight2ddate = None
-        flight2adate = None
-        if round_trip:
-            flight2 = Flight.objects.get(id=flight_2)
-            flight2ddate = datetime(
-                int(date2.split("-")[2]),
-                int(date2.split("-")[1]),
-                int(date2.split("-")[0]),
-                flight2.depart_time.hour,
-                flight2.depart_time.minute,
-            )
-            flight2adate = flight2ddate + flight2.duration
-        # print("//////////////////////////////////")
-        # print(f"flight1ddate: {flight1adate-flight1ddate}")
-        # print("//////////////////////////////////")
-        if round_trip:
-            return render(
-                request,
-                "flight/book.html",
-                {
-                    "flight1": flight1,
-                    "flight2": flight2,
-                    "flight1ddate": flight1ddate,
-                    "flight1adate": flight1adate,
-                    "flight2ddate": flight2ddate,
-                    "flight2adate": flight2adate,
-                    "seat": seat,
-                    "fee": FEE,
-                },
-            )
+
         return render(
             request,
             "flight/book.html",
             {
-                "flight1": flight1,
-                "flight1ddate": flight1ddate,
-                "flight1adate": flight1adate,
+                "busID": flight1,
+                "busDate": flight1ddate,
                 "seat": seat,
                 "fee": FEE,
             },
@@ -294,12 +218,12 @@ def book(request):
             countrycode = request.POST["countryCode"]
             mobile = request.POST["mobile"]
             email = request.POST["email"]
-            flight1 = Flight.objects.get(id=flight_1)
+            flight1 = Bus.objects.get(id=flight_1)
             if f2:
-                flight2 = Flight.objects.get(id=flight_2)
+                flight2 = Bus.objects.get(id=flight_2)
             # passengerscount = request.POST["passengersCount"]
             passengerscount = 5
-           
+
             coupon = request.POST.get("coupon")
 
             try:
@@ -334,13 +258,13 @@ def book(request):
                         )
                     else:
                         fare = flight1.economy_fare * int(passengerscount)
-                elif flight_1class == "Business":
+                elif flight_1class == "Flightiness":
                     if f2:
-                        fare = (flight1.business_fare * int(passengerscount)) + (
-                            flight2.business_fare * int(passengerscount)
+                        fare = (flight1.flightiness_fare * int(passengerscount)) + (
+                            flight2.flightiness_fare * int(passengerscount)
                         )
                     else:
-                        fare = flight1.business_fare * int(passengerscount)
+                        fare = flight1.flightiness_fare * int(passengerscount)
                 elif flight_1class == "First":
                     if f2:
                         fare = (flight1.first_fare * int(passengerscount)) + (

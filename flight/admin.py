@@ -6,7 +6,7 @@ from .models import *
 
 admin.site.register(Place)
 admin.site.register(Week)
-admin.site.register(Flight)
+admin.site.register(Bus)
 admin.site.register(Passenger)
 admin.site.register(User)
 admin.site.register(Ticket)
