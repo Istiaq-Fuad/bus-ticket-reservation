@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 from datetime import datetime
+from django.utils import timezone
 
 # Create your models here.
 
@@ -27,6 +28,13 @@ class Week(models.Model):
         return f"{self.name} ({self.number})"
 
 
+SEAT_CLASS = (
+    ("ECONOMY", "Economy"),
+    ("FIRST", "First"),
+    ("SLEEPER", "Sleeper"),
+)
+
+
 class Bus(models.Model):
     origin = models.ForeignKey(
         Place, on_delete=models.CASCADE, related_name="departures"
@@ -36,34 +44,21 @@ class Bus(models.Model):
     )
     depart_time = models.TimeField(auto_now=False, auto_now_add=False)
     depart_day = models.ManyToManyField(Week, related_name="flights_of_the_day")
-    economy_fare = models.FloatField(null=True)
-    first_fare = models.FloatField(null=True)
-    sleeper_fare = models.FloatField(null=True)
+    seat_class = models.CharField(max_length=20, choices=SEAT_CLASS)
+    fare = models.FloatField()
 
     def __str__(self):
         return f"{self.id}: {self.origin} to {self.destination}"
 
 
-GENDER = (
-    ("male", "MALE"),  # (actual_value, human_readable_value)
-    ("female", "FEMALE"),
-)
-
-
-class Passenger(models.Model):
-    first_name = models.CharField(max_length=64, blank=True)
-    last_name = models.CharField(max_length=64, blank=True)
-    gender = models.CharField(max_length=20, choices=GENDER, blank=True)
+class Seat(models.Model):
+    bus_id = models.ForeignKey(Bus, null=True, on_delete=models.CASCADE)
+    seat_code = models.CharField(max_length=5)  # e.g., A1, B2, etc.
+    is_available = models.BooleanField(default=True)
 
     def __str__(self):
-        return f"Passenger: {self.first_name} {self.last_name}, {self.gender}"
+        return f"{self.seat_code} on {self.bus_id}"
 
-
-SEAT_CLASS = (
-    ("economy", "Economy"),
-    ("first", "First"),
-    ("sleeper", "Sleeper"),
-)
 
 TICKET_STATUS = (
     ("PENDING", "Pending"),
@@ -76,12 +71,11 @@ class Ticket(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="bookings", blank=True, null=True
     )
-    passenger = models.ForeignKey(
-        Passenger, on_delete=models.CASCADE, related_name="tickets"
-    )
+    num_passenger = models.IntegerField(null=True)
     bus = models.ForeignKey(
         Bus, on_delete=models.CASCADE, related_name="tickets", blank=True, null=True
     )
+    seats = models.ManyToManyField(Seat, related_name="tickets")
     bus_date = models.DateField(blank=True, null=True)
     bus_fare = models.FloatField(blank=True, null=True)
     other_charges = models.FloatField(blank=True, null=True)
@@ -89,7 +83,7 @@ class Ticket(models.Model):
     coupon_discount = models.FloatField(default=0.0)
     total_fare = models.FloatField(blank=True, null=True)
     seat_class = models.CharField(max_length=20, choices=SEAT_CLASS)
-    booking_date = models.DateTimeField(default=datetime.now)
+    booking_date = models.DateTimeField(default=timezone.now)
     mobile = models.CharField(max_length=20, blank=True)
     email = models.EmailField(max_length=45, blank=True)
     status = models.CharField(max_length=45, choices=TICKET_STATUS)

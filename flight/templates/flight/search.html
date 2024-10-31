@@ -87,12 +87,12 @@
             border-radius: 4px;
         }
 
-        .selected-seats {
+        {% comment %} .selected-seats {
             margin-top: 20px;
             padding: 10px;
             background-color: #f5f5f5;
             border-radius: 8px;
-        }
+        } {% endcomment %}
 
         .flight-details-btn {
             margin-top: 20px;	
@@ -124,17 +124,19 @@
                 <span>Selected</span>
             </div>
         </div>
-
+        {% comment %} 
         <div class="selected-seats">
             <h3>Selected Seats:</h3>
             <div id="selectedSeatsList"></div>
-        </div>
+        </div> {% endcomment %}
+
         <div class="flight-details-btn">
                 <form action="{% url 'review' %}" method="GET" style="display: flex;">
-                    <input type="hidden" name="flight1Id" value="{{flightID}}">
-                    <input type="hidden" name="flight1Date" value="{{ destination | date:'d-m-Y' }}">
-                    <input type="hidden" name="seatClass" value="{{ seat }}">
+                    <input type="hidden" name="busID" value="{{busID}}">
+                    <input type="hidden" name="date" value="{{ depart_date | date:'d-m-Y' }}">
+                    <input type="hidden" name="seatClass" value="{{ seatClass }}">
                     <input type="hidden" id="selectedSeatsCount" name="selectedSeatsCount" value="{{0}}">
+                    <input type="hidden" id="selectedSeats" name="selectedSeats" value="">
                     <button class="btn btn-primary btn-danger o-b" type="submit">
                         Book Bus <!--&#8594;-->
                     </button>
@@ -221,11 +223,9 @@
         }
 
         function updateSelectedSeatsList() {
-            const selectedSeatsList = document.getElementById('selectedSeatsList');
-            if (selectedSeats.size === 0) {
-                selectedSeatsList.textContent = 'No seats selected';
-            } else {
-                selectedSeatsList.textContent = Array.from(selectedSeats).join(', ');
+            const selectedSeatsList = document.getElementById('selectedSeats');
+            if (selectedSeatsList) {
+                selectedSeatsList.value = Array.from(selectedSeats).join('-');
             }
             updateSelectedSeatsCount();
         }

@@ -22,57 +22,42 @@ def render_to_pdf(template_src, context_dict={}):
 
 def createticket(
     user,
-    passengers,
-    passengerscount,
-    flight1,
-    flight_1date,
-    flight_1class,
-    coupon,
-    countrycode,
-    email,
+    passengers_count,
+    bus,
+    seats,
+    bus_date,
+    seat_class,
     mobile,
+    email,
+    coupon=None,
 ):
+    print(seat_class)
     ticket = Ticket.objects.create()
     ticket.user = user
     ticket.ref_no = secrets.token_hex(3).upper()
-    for passenger in passengers:
-        ticket.passengers.add(passenger)
-    ticket.flight = flight1
-    ticket.flight_ddate = datetime(
-        int(flight_1date.split("-")[2]),
-        int(flight_1date.split("-")[1]),
-        int(flight_1date.split("-")[0]),
+    ticket.bus = bus
+    ticket.bus_fare = bus.fare
+    ticket.num_passenger = passengers_count
+    ticket.seat_class = seat_class.upper()
+
+    ticket.bus_date = datetime(
+        int(bus_date.split("-")[2]),
+        int(bus_date.split("-")[1]),
+        int(bus_date.split("-")[0]),
     )
-    ###################
-    flight1ddate = datetime(
-        int(flight_1date.split("-")[2]),
-        int(flight_1date.split("-")[1]),
-        int(flight_1date.split("-")[0]),
-        flight1.depart_time.hour,
-        flight1.depart_time.minute,
-    )
-    flight1adate = flight1ddate + flight1.duration
-    ###################
-    ticket.flight_adate = datetime(
-        flight1adate.year, flight1adate.month, flight1adate.day
-    )
-    ffre = 0.0
-    if flight_1class.lower() == "first":
-        ticket.flight_fare = flight1.first_fare * int(passengerscount)
-        ffre = flight1.first_fare * int(passengerscount)
-    elif flight_1class.lower() == "flightiness":
-        ticket.flight_fare = flight1.flightiness_fare * int(passengerscount)
-        ffre = flight1.flightiness_fare * int(passengerscount)
-    else:
-        ticket.flight_fare = flight1.economy_fare * int(passengerscount)
-        ffre = flight1.economy_fare * int(passengerscount)
+
+    for seat in seats:
+        ticket.seats.add(seat)
+        seat.is_available = False
+        seat.save()
+
     ticket.other_charges = FEE
     if coupon:
         ticket.coupon_used = coupon  ##########Coupon
-    ticket.total_fare = ffre + FEE + 0.0  ##########Total(Including coupon)
-    ticket.seat_class = flight_1class.lower()
+
+    ticket.total_fare = bus.fare + FEE + 0.0  ##########Total(Including coupon)
     ticket.status = "PENDING"
-    ticket.mobile = "+" + countrycode + " " + mobile
+    ticket.mobile = mobile
     ticket.email = email
     ticket.save()
     return ticket

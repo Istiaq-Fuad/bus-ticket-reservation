@@ -146,20 +146,12 @@ def flight(request):
     d_place = request.GET.get("Destination")
     departdate = request.GET.get("DepartDate")
     depart_date = datetime.strptime(departdate, "%Y-%m-%d")
-    seat = request.GET.get("SeatClass")
+    seat_class = request.GET.get("SeatClass")
 
     destination = Place.objects.get(code=d_place.upper())
     origin = Place.objects.get(code=o_place.upper())
-    print(destination, origin)
 
-    if seat == "economy":
-        bus = Bus.objects.filter(origin=origin, destination=destination).first()
-
-    elif seat == "sleeper":
-        bus = Bus.objects.filter(origin=origin, destination=destination).first()
-
-    elif seat == "first":
-        bus = Bus.objects.filter(origin=origin, destination=destination).first()
+    bus = Bus.objects.filter(origin=origin, destination=destination).first()
 
     return render(
         request,
@@ -167,35 +159,38 @@ def flight(request):
         {
             "busID": bus.id,
             "origin": origin,
-            "destination": depart_date,
-            "seat": seat.capitalize(),
+            "seatClass": seat_class.capitalize(),
             "depart_date": depart_date,
         },
     )
 
 
 def review(request):
-    busID = request.GET.get("flight1Id")
-    date1 = request.GET.get("flight1Date")
-    seat = request.GET.get("seatClass")
+    busID = request.GET.get("busID")
+    date1 = request.GET.get("date")
+    seat_class = request.GET.get("seatClass")
+    selected_seats = request.GET.get("selectedSeats")
+    passenger_count = request.GET.get("selectedSeatsCount")
 
     if request.user.is_authenticated:
-        flight1 = Bus.objects.get(id=1)
-        flight1ddate = datetime(
+        bus = Bus.objects.get(id=busID)
+        bus_date = datetime(
             int(date1.split("-")[2]),
             int(date1.split("-")[1]),
             int(date1.split("-")[0]),
-            flight1.depart_time.hour,
-            flight1.depart_time.minute,
+            bus.depart_time.hour,
+            bus.depart_time.minute,
         )
 
         return render(
             request,
             "flight/book.html",
             {
-                "busID": flight1,
-                "busDate": flight1ddate,
-                "seat": seat,
+                "bus": bus,
+                "busDate": bus_date,
+                "seatClass": seat_class,
+                "selectedSeats": selected_seats,
+                "passengerCount": passenger_count,
                 "fee": FEE,
             },
         )
@@ -206,89 +201,50 @@ def review(request):
 def book(request):
     if request.method == "POST":
         if request.user.is_authenticated:
-            flight_1 = request.POST.get("flight1")
-            flight_1date = request.POST.get("flight1Date")
-            flight_1class = request.POST.get("flight1Class")
-            f2 = False
-            if request.POST.get("flight2"):
-                flight_2 = request.POST.get("flight2")
-                flight_2date = request.POST.get("flight2Date")
-                flight_2class = request.POST.get("flight2Class")
-                f2 = True
-            countrycode = request.POST["countryCode"]
+            bus_id = request.POST.get("busID")
+            bus_date = request.POST.get("date")
+            seat_class = request.POST.get("seatClass")
+            passenger_count = request.POST.get("passengerCount")
+            selected_seats = request.POST.get("selectedSeats")
+
+            selected_seats_list = selected_seats.split("-")
+
+            seats = []
+
             mobile = request.POST["mobile"]
             email = request.POST["email"]
-            flight1 = Bus.objects.get(id=flight_1)
-            if f2:
-                flight2 = Bus.objects.get(id=flight_2)
-            # passengerscount = request.POST["passengersCount"]
-            passengerscount = 5
+
+            bus = Bus.objects.get(id=bus_id)
 
             coupon = request.POST.get("coupon")
 
             try:
-                ticket1 = createticket(
-                    request.user,
-                    passengerscount,
-                    flight1,
-                    flight_1date,
-                    flight_1class,
-                    coupon,
-                    countrycode,
-                    email,
-                    mobile,
-                )
-                if f2:
-                    ticket2 = createticket(
-                        request.user,
-                        passengerscount,
-                        flight2,
-                        flight_2date,
-                        flight_2class,
-                        coupon,
-                        countrycode,
-                        email,
-                        mobile,
-                    )
+                for seat_code in selected_seats_list:
+                    seat = Seat.objects.create()
+                    seat.bus_id = bus
+                    seat.seat_code = seat_code
+                    seat.save()
+                    seats.append(seat)
 
-                if flight_1class == "Economy":
-                    if f2:
-                        fare = (flight1.economy_fare * int(passengerscount)) + (
-                            flight2.economy_fare * int(passengerscount)
-                        )
-                    else:
-                        fare = flight1.economy_fare * int(passengerscount)
-                elif flight_1class == "Flightiness":
-                    if f2:
-                        fare = (flight1.flightiness_fare * int(passengerscount)) + (
-                            flight2.flightiness_fare * int(passengerscount)
-                        )
-                    else:
-                        fare = flight1.flightiness_fare * int(passengerscount)
-                elif flight_1class == "First":
-                    if f2:
-                        fare = (flight1.first_fare * int(passengerscount)) + (
-                            flight2.first_fare * int(passengerscount)
-                        )
-                    else:
-                        fare = flight1.first_fare * int(passengerscount)
+                ticket = createticket(
+                    request.user,
+                    int(passenger_count),
+                    bus,
+                    seats,
+                    bus_date,
+                    seat_class,
+                    mobile,
+                    email,
+                    coupon,
+                )
             except Exception as e:
+                print(e)
                 return HttpResponse(e)
 
-            if f2:  ##
-                return render(
-                    request,
-                    "flight/payment.html",
-                    {  ##
-                        "fare": fare + FEE,  ##
-                        "ticket": ticket1.id,  ##
-                        "ticket2": ticket2.id,  ##
-                    },
-                )  ##
             return render(
                 request,
                 "flight/payment.html",
-                {"fare": fare + FEE, "ticket": ticket1.id},
+                {"fare": ticket.total_fare, "ticket": ticket.id},
             )
         else:
             return HttpResponseRedirect(reverse("login"))
