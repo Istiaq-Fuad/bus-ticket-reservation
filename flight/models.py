@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 from datetime import datetime
 from django.utils import timezone
+from django.db.models import UniqueConstraint
 
 # Create your models here.
 
@@ -55,6 +56,11 @@ class Seat(models.Model):
     bus_id = models.ForeignKey(Bus, null=True, on_delete=models.CASCADE)
     seat_code = models.CharField(max_length=5)  # e.g., A1, B2, etc.
     is_available = models.BooleanField(default=True)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(fields=["bus_id", "seat_code"], name="unique_bus_seat_code")
+        ]
 
     def __str__(self):
         return f"{self.seat_code} on {self.bus_id}"

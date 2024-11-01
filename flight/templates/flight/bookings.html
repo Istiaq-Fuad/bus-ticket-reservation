@@ -17,12 +17,12 @@
                         <div class="col-2" style="display: flex;">
                             <div style="display: flex; color: #666666; margin-top: auto;">
                                 <div>
-                                    <span style="font-size: 2.1em;">{{ticket.flight_ddate | date:"d"}}</span>
+                                    <span style="font-size: 2.1em;">{{ticket.bus_date | date:"d"}}</span>
                                 </div>
                                 <div style="font-size: smaller; display: flex; margin: auto 0; padding-left: 5px; line-height: 1em;">
                                     <div style="margin: auto;">
-                                        <div style="margin-bottom: 1px;">{{ticket.flight_ddate | date:"D"}}</div>
-                                        <div style="margin-top: 1px;">{{ticket.flight_ddate | date:"M'y"}}</div>
+                                        <div style="margin-bottom: 1px;">{{ticket.bus_date | date:"D"}}</div>
+                                        <div style="margin-top: 1px;">{{ticket.bus_date | date:"M'y"}}</div>
                                     </div>
                                 </div>
                             </div>
@@ -30,12 +30,12 @@
                         <div class="col-4 middle-div">
                             <div style="width:100%">
                                 <div class="row places-div" style=" display: flex;">
-                                    <div style="max-width: 45%;">{{ticket.flight.origin.city}}</div>
+                                    <div style="max-width: 45%;">{{ticket.bus.origin.city}}</div>
                                     <div>&nbsp;-&nbsp;</div>
-                                    <div style="max-width: 45%;">{{ticket.flight.destination.city}}</div>
+                                    <div style="max-width: 45%;">{{ticket.bus.destination.city}}</div>
                                 </div>
                                 <div class="row places-div" style="font-size: .8em; color: #999999; ">
-                                    <div style="max-width: 100%;">{{ticket.flight.airline}} &middot; {{ticket.flight.plane}} &middot; {{ticket.passengers.count}} Passengers</div>
+                                    <div style="max-width: 100%;">{{ticket.num_passenger}} Passengers</div>
                                 </div>
                             </div>
                         </div>
