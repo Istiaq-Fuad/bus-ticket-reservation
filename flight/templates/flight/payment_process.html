@@ -20,8 +20,7 @@
             Please wait while we are processing your payment.
         </div>
     </section>
-    <input type="hidden" class="ref1" value="{{ticket1.ref_no}}">
-    <input type="hidden" class="ref2" value="{{ticket2.ref_no}}">
+    <input type="hidden" class="ref1" id="ref1" value="{{ticket1.ref_no}}">
     <section class="section section2">
         <div class="svg-div-c">
             <svg width="5em" height="5em" viewBox="0 0 16 16" class="bi bi-check-circle-fill" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -32,21 +31,14 @@
             Congratulations, Your flight booking is confirmed.
         </div>
         <div class="details-div">
-            <div class="flight1">Booking Ref. Number: &nbsp;<span class="ref">{{ticket1.ref_no}}</span>&nbsp;&nbsp;&nbsp;(<span class="from1">{{ticket1.flight.origin.code}}</span> <span>&#8594;</span> <span class="to1">{{ticket1.flight.destination.code}}</span>)</div>
-            <div class="flight2">Booking Ref. Number: &nbsp;<span class="ref">{{ticket2.ref_no}}</span>&nbsp;&nbsp;&nbsp;(<span class="from2">{{ticket2.flight.origin.code}}</span> <span>&#8594;</span> <span class="to2">{{ticket2.flight.destination.code}}</span>)</div>
+            <div class="flight1">Booking Ref. Number: &nbsp;<span class="ref">{{ticket1.ref_no}}</span>&nbsp;&nbsp;&nbsp;(<span class="from1">{{ticket1.bus.origin.code}}</span> <span>&#8594;</span> <span class="to1">{{ticket1.bus.destination.code}}</span>)</div>
         </div>
         <div class="ticket-div">
             <div>
                 <form action="{% url 'getticket' %}" method="get" target="_blank">
                     <input type="hidden" name="ref" value="{{ticket1.ref_no}}">
-                    <button type="submit" class="btn btn-outline-primary">Print Ticket ({{ticket1.flight.origin.code}} to {{ticket1.flight.destination.code}})</button>
+                    <button type="submit" class="btn btn-outline-primary">Print Ticket ({{ticket1.bus.origin.code}} to {{ticket1.bus.destination.code}})</button>
                 </form>
-                {% if ticket2 %}
-                    <form action="{% url 'getticket' %}" method="get" target="_blank">
-                        <input type="hidden" name="ref" value="{{ticket2.ref_no}}">
-                        <button type="submit" class="btn btn-outline-primary">Print Ticket ({{ticket2.flight.origin.code}} to {{ticket2.flight.destination.code}})</button>
-                    </form>
-                {% endif %}
             </div>
         </div>
     </section>

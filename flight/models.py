@@ -75,6 +75,7 @@ class Ticket(models.Model):
     bus = models.ForeignKey(
         Bus, on_delete=models.CASCADE, related_name="tickets", blank=True, null=True
     )
+    ref_no = models.CharField(max_length=10, blank=True)
     seats = models.ManyToManyField(Seat, related_name="tickets")
     bus_date = models.DateField(blank=True, null=True)
     bus_fare = models.FloatField(blank=True, null=True)

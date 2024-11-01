@@ -256,10 +256,6 @@ def payment(request):
     if request.user.is_authenticated:
         if request.method == "POST":
             ticket_id = request.POST["ticket"]
-            t2 = False
-            if request.POST.get("ticket2"):
-                ticket2_id = request.POST["ticket2"]
-                t2 = True
             fare = request.POST.get("fare")
             card_number = request.POST["cardNumber"]
             card_holder_name = request.POST["cardHolderName"]
@@ -272,19 +268,11 @@ def payment(request):
                 ticket.status = "CONFIRMED"
                 ticket.booking_date = datetime.now()
                 ticket.save()
-                if t2:
-                    ticket2 = Ticket.objects.get(id=ticket2_id)
-                    ticket2.status = "CONFIRMED"
-                    ticket2.save()
-                    return render(
-                        request,
-                        "flight/payment_process.html",
-                        {"ticket1": ticket, "ticket2": ticket2},
-                    )
+                
                 return render(
                     request,
                     "flight/payment_process.html",
-                    {"ticket1": ticket, "ticket2": ""},
+                    {"ticket1": ticket},
                 )
             except Exception as e:
                 return HttpResponse(e)
@@ -299,9 +287,9 @@ def ticket_data(request, ref):
     return JsonResponse(
         {
             "ref": ticket.ref_no,
-            "from": ticket.flight.origin.code,
-            "to": ticket.flight.destination.code,
-            "flight_date": ticket.flight_ddate,
+            "from": ticket.bus.origin.code,
+            "to": ticket.bus.destination.code,
+            "flight_date": ticket.bus_date,
             "status": ticket.status,
         }
     )
