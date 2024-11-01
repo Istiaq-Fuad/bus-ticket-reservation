@@ -3,6 +3,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
+from django.db import IntegrityError, transaction
 
 from datetime import datetime
 import math
@@ -219,13 +220,16 @@ def book(request):
             coupon = request.POST.get("coupon")
 
             try:
-                for seat_code in selected_seats_list:
-                    seat = Seat.objects.create()
-                    seat.bus_id = bus
-                    seat.seat_code = seat_code
-                    seat.save()
-                    seats.append(seat)
+                with transaction.atomic():
+                    for seat_code in selected_seats_list:
+                        seat = Seat.objects.create(bus_id=bus, seat_code=seat_code)
+                        seats.append(seat)
+            except IntegrityError as e:
+                pass
+            except Exception as e:
+                return HttpResponse(e)
 
+            try:
                 ticket = createticket(
                     request.user,
                     int(passenger_count),
@@ -238,7 +242,6 @@ def book(request):
                     coupon,
                 )
             except Exception as e:
-                print(e)
                 return HttpResponse(e)
 
             return render(
@@ -268,7 +271,7 @@ def payment(request):
                 ticket.status = "CONFIRMED"
                 ticket.booking_date = datetime.now()
                 ticket.save()
-                
+
                 return render(
                     request,
                     "flight/payment_process.html",
@@ -324,6 +327,10 @@ def cancel_ticket(request):
                 if ticket.user == request.user:
                     ticket.status = "CANCELLED"
                     ticket.save()
+
+                    seats = ticket.seats.all()
+                    seats.update(is_available=True)
+
                     return JsonResponse({"success": True})
                 else:
                     return JsonResponse(

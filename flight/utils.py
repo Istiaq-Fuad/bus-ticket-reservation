@@ -68,7 +68,7 @@ def addDomesticFlights():
         first_fare = float(data[13].strip()) if data[13].strip() else 0.0
 
         try:
-            a1 = Flight.objects.create(
+            a1 = Bus.objects.create(
                 origin=Place.objects.get(code=origin),
                 destination=Place.objects.get(code=destination),
                 depart_time=depart_time,
@@ -112,7 +112,7 @@ def addInternationalFlights():
         first_fare = float(data[13].strip()) if data[13].strip() else 0.0
 
         try:
-            a1 = Flight.objects.create(
+            a1 = Bus.objects.create(
                 origin=Place.objects.get(code=origin),
                 destination=Place.objects.get(code=destination),
                 depart_time=depart_time,

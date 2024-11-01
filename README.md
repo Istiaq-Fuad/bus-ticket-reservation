@@ -37,7 +37,7 @@ This is the capstone project for CS50's Web Programming with Python and Javascri
     - `payment_process.html` - Page after completion of payment.
     - `payment.html` - Payment page.
     - `register.html` - Register user page.
-    - `search.html` - Flight search result page.
+    - `search.html` - Bus search result page.
     - `ticket.html` - Template for printing ticket(pdf).
   - `admin.py` - Contains some models for access to the Django administrator.
   - `models.py` - All models used in the application are created here.

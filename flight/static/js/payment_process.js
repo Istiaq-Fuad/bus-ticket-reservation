@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if (ref1) {
     setTimeout(() => {
-      fetch(`/flight/ticket/api/${ref1}`)
+      fetch(`/bus/ticket/api/${ref1}`)
         .then((response) => response.json())
         .then((ticket1) => {
           if (ticket1.status === "CONFIRMED") {
