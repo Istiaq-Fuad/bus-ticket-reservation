@@ -29,9 +29,8 @@ def createticket(
     seat_class,
     mobile,
     email,
-    coupon=None,
+    coupon,
 ):
-    print(seat_class)
     ticket = Ticket.objects.create()
     ticket.user = user
     ticket.ref_no = secrets.token_hex(3).upper()
@@ -40,10 +39,9 @@ def createticket(
     ticket.num_passenger = passengers_count
     ticket.seat_class = seat_class.upper()
 
-    ticket.bus_date = datetime(
-        int(bus_date.split("-")[2]),
-        int(bus_date.split("-")[1]),
-        int(bus_date.split("-")[0]),
+    ticket.bus_date = datetime.strptime(bus_date, "%d-%m-%Y")
+    ticket.bus_date += timedelta(
+        hours=bus.depart_time.hour, minutes=bus.depart_time.minute
     )
 
     for seat in seats:
@@ -52,10 +50,13 @@ def createticket(
         seat.save()
 
     ticket.other_charges = FEE
+
+    coupon_discount = 0.0
     if coupon:
         ticket.coupon_used = coupon  ##########Coupon
+        coupon_discount = coupon.discount
 
-    ticket.total_fare = bus.fare + FEE + 0.0  ##########Total(Including coupon)
+    ticket.total_fare = bus.fare * passengers_count + FEE - coupon_discount
     ticket.status = "PENDING"
     ticket.mobile = mobile
     ticket.email = email

@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError, transaction
+from django.shortcuts import get_object_or_404
 
 from datetime import datetime
 import math
@@ -217,7 +218,12 @@ def book(request):
 
             bus = Bus.objects.get(id=bus_id)
 
-            coupon = request.POST.get("coupon")
+            coupon_code = request.POST.get("coupon")
+            coupon = (
+                Coupon.objects.filter(code=coupon_code.upper()).first()
+                if coupon_code
+                else None
+            )
 
             try:
                 with transaction.atomic():
@@ -283,6 +289,18 @@ def payment(request):
             return HttpResponse("Method must be post.")
     else:
         return HttpResponseRedirect(reverse("login"))
+
+
+def apply_coupon(request, coupon_code):
+    try:
+        coupon_code = coupon_code.upper()
+        coupon = get_object_or_404(Coupon, code=coupon_code)
+        discount = (
+            coupon.discount
+        )  # Assuming the Coupon model has a discount_value field
+        return JsonResponse({"success": True, "discount": discount})
+    except Exception:
+        return JsonResponse({"success": False, "message": "Invalid coupon code"})
 
 
 def ticket_data(request, ref):

@@ -121,8 +121,8 @@
                     <td>{{ticket1.booking_date | date:'d M y' | upper}}<br>{{ticket1.booking_date | time:'H : i' | upper}}</td>
                 </tr>
                 <tr class="tr-even">
-                    <th>FLIGHT DATE</th>
-                    <td>{{ticket1.bus_date | date:'d M y' | upper}}</td>
+                    <th>Bus DATE & TIME</th>
+                    <td>{{ticket1.bus_date | date:'d M y' | upper}}<br>{{ticket1.bus | time:'H : i' | upper}}</td>
                     <th>CLASS</th>
                     <td>{{ticket1.seat_class | upper}}</td>
                 </tr>
@@ -155,7 +155,7 @@
                 </tr>
                 <tr class="tr-odd">
                     <th style="width: 35%;">DISCOUNT</th>
-                    <td style="width: 65%;">BDT (-) {{ticket1.coupon_discount}}</td>
+                    <td style="width: 65%;">BDT (-) {{ticket1.coupon_used.discount}}</td>
                 </tr>
                 <tr class="tr-even">
                     <th style="width: 35%;">TOTAL</th>

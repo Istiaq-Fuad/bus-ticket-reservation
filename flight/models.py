@@ -1,11 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from datetime import datetime
 from django.utils import timezone
 from django.db.models import UniqueConstraint
-
-# Create your models here.
 
 
 class User(AbstractUser):
@@ -44,7 +41,7 @@ class Bus(models.Model):
         Place, on_delete=models.CASCADE, related_name="arrivals"
     )
     depart_time = models.TimeField(auto_now=False, auto_now_add=False)
-    depart_day = models.ManyToManyField(Week, related_name="flights_of_the_day")
+    depart_day = models.ManyToManyField(Week, related_name="bus_of_the_day")
     seat_class = models.CharField(max_length=20, choices=SEAT_CLASS)
     fare = models.FloatField()
 
@@ -59,11 +56,22 @@ class Seat(models.Model):
 
     class Meta:
         constraints = [
-            UniqueConstraint(fields=["bus_id", "seat_code"], name="unique_bus_seat_code")
+            UniqueConstraint(
+                fields=["bus_id", "seat_code"], name="unique_bus_seat_code"
+            )
         ]
 
     def __str__(self):
         return f"{self.seat_code} on {self.bus_id}"
+
+
+class Coupon(models.Model):
+    code = models.CharField(max_length=15, unique=True)
+    discount = models.FloatField()
+    expiry = models.DateField()
+
+    def __str__(self):
+        return f"{self.code}: {self.discount}"
 
 
 TICKET_STATUS = (
@@ -83,11 +91,14 @@ class Ticket(models.Model):
     )
     ref_no = models.CharField(max_length=10, blank=True)
     seats = models.ManyToManyField(Seat, related_name="tickets")
-    bus_date = models.DateField(blank=True, null=True)
+    bus_date = models.DateTimeField(blank=True, null=True)
     bus_fare = models.FloatField(blank=True, null=True)
     other_charges = models.FloatField(blank=True, null=True)
-    coupon_used = models.CharField(max_length=15, blank=True)
-    coupon_discount = models.FloatField(default=0.0)
+    # coupon_used = models.CharField(max_length=15, blank=True)
+    # coupon_discount = models.FloatField(default=0.0)
+    coupon_used = models.ForeignKey(
+        Coupon, on_delete=models.CASCADE, related_name="tickets", blank=True, null=True
+    )
     total_fare = models.FloatField(blank=True, null=True)
     seat_class = models.CharField(max_length=20, choices=SEAT_CLASS)
     booking_date = models.DateTimeField(default=timezone.now)

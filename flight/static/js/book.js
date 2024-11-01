@@ -1,5 +1,45 @@
 document.addEventListener("DOMContentLoaded", () => {
   flight_duration();
+
+  document
+    .querySelector("#coupon-button")
+    .addEventListener("click", function () {
+      const couponCode = document.getElementById("coupon").value;
+
+      if (couponCode) {
+        fetch(`/apply-coupon/${couponCode}`)
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.success) {
+              const discount = parseFloat(data.discount);
+              document.querySelector("#coupon-value-field").innerText =
+                discount;
+              document.querySelector(".coupon-div").style.display = "flex";
+
+              const total_fare_input =
+                document.getElementById("total-fare-input");
+              let total_fare = parseFloat(total_fare_input.value);
+
+              console.log(total_fare, discount);
+
+              total_fare = total_fare - discount;
+
+              const total_fare_span =
+                document.getElementById("total-fare-span");
+              total_fare_span.innerText = total_fare.toFixed(2);
+              total_fare_input.value = total_fare.toFixed(2);
+            } else {
+              alert("Invalid coupon code");
+            }
+          })
+          .catch((error) => {
+            console.error("Error applying coupon:", error);
+            alert("Error applying coupon");
+          });
+      } else {
+        alert("Please enter a coupon code");
+      }
+    });
 });
 
 function flight_duration() {
@@ -118,76 +158,3 @@ function book_submit() {
   alert("Please add atleast one passenger.");
   return false;
 }
-
-const seatLayout = [
-  ["A1", "A2", "A3", "A4"],
-  ["B1", "B2", "B3", "B4"],
-  ["C1", "C2", "C3", "C4"],
-  ["D1", "D2", "D3", "D4"],
-  ["E1", "E2", "E3", "E4"],
-];
-
-const bookedSeats = ["A1", "B2", "C3", "D4"];
-const femaleSeats = ["A3", "B1", "C4"];
-const maleSeats = ["D2", "E4"];
-const selectedSeats = new Set();
-
-function createSeatLayout() {
-  const flightLayout = document.getElementById("flightLayout");
-  flightLayout.innerHTML = "";
-
-  seatLayout.forEach((row) => {
-    row.forEach((seatNumber) => {
-      const seat = document.createElement("div");
-      seat.className = "seat";
-      seat.setAttribute("data-seat", seatNumber);
-
-      if (bookedSeats.includes(seatNumber)) {
-        seat.classList.add("booked");
-      } else if (femaleSeats.includes(seatNumber)) {
-        seat.classList.add("reserved-female");
-      } else if (maleSeats.includes(seatNumber)) {
-        seat.classList.add("reserved-male");
-      } else {
-        seat.classList.add("available");
-      }
-
-      if (selectedSeats.has(seatNumber)) {
-        seat.classList.add("selected");
-      }
-
-      seat.textContent = seatNumber;
-      seat.addEventListener("click", () => toggleSeat(seatNumber));
-      flightLayout.appendChild(seat);
-    });
-  });
-  updateSelectedSeatsList();
-}
-
-function toggleSeat(seatNumber) {
-  if (bookedSeats.includes(seatNumber)) return;
-
-  const seatElement = document.querySelector(`[data-seat="${seatNumber}"]`);
-
-  if (selectedSeats.has(seatNumber)) {
-    selectedSeats.delete(seatNumber);
-    seatElement.classList.remove("selected");
-  } else {
-    selectedSeats.add(seatNumber);
-    seatElement.classList.add("selected");
-  }
-
-  updateSelectedSeatsList();
-}
-
-function updateSelectedSeatsList() {
-  const selectedSeatsList = document.getElementById("selectedSeatsList");
-  if (selectedSeats.size === 0) {
-    selectedSeatsList.textContent = "No seats selected";
-  } else {
-    selectedSeatsList.textContent = Array.from(selectedSeats).join(", ");
-  }
-}
-
-// Initialize the seat layout
-createSeatLayout();

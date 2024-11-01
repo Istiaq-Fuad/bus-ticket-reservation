@@ -1,6 +1,7 @@
 {% extends 'flight/layout.html' %}
 
 {% load static %}
+{% load math_filters %}
 
 {% block head %}
     <title>Book | Bus</title>
@@ -71,7 +72,7 @@
                         <div class="row base-fare">
                             <div class="base-fae-label">Base Fare: </div>
                             <div class="base-fare-value">
-                                ৳ <span> {{bus.fare}} </span>
+                                ৳ <span> {{bus.fare | multiply:passengerCount}} </span>
                             </div>
                         </div>
                         <div class="row surcharges">
@@ -79,12 +80,18 @@
                             <div class="surcharges-value">৳ <span>{{fee}}</span></div>
                             <input type="hidden" id="fee" value="{{fee}}">
                         </div>
+                        <div class="row surcharges coupon-div" style="display: none;">
+                            <div class="surcharges-label">Coupon Discount: </div>
+                            <div class="surcharges-value">৳ <span id="coupon-value-field"></span></div>
+                            <input type="hidden" id="fee" value="{{fee}}">
+                        </div>
                         <hr>
                         <div class="total-fare">
                             <div class="total-fare-label">Total Fare: </div>
                             <div class="total-fare-value">
-                                ৳ <span> {{bus.fare | add:fee}} </span>
+                                ৳ <span id="total-fare-span"> {{bus.fare | multiply:passengerCount | add:fee}} </span>
                             </div>
+                            <input type="hidden" id="total-fare-input" name="coupon" value="{{bus.fare | multiply:passengerCount | add:fee}}">
                         </div>
                     </div>
                     <div class="coupon-code">
@@ -92,11 +99,11 @@
                         <hr>
                         <div class="row base-fare">
                             <div class="col-9" style="padding: 10px 10px 10px 0px">
-                                <input type="text" name="coupon" class="form-control" placeholder="Coupon Code" style="text-transform: uppercase;">
+                                <input type="text" name="coupon" id="coupon" class="form-control" placeholder="Coupon Code" style="text-transform: uppercase;">
                             </div>
                             <div class="col coupon-apply" style="padding: 10px 10px 10px 0px">
                                 <center>
-                                    <button type="button" class="btn btn-primary btn-danger">Apply</button>
+                                    <button type="button" class="btn btn-primary btn-danger" id="coupon-button">Apply</button>
                                 </center>
                             </div>
                         </div>
