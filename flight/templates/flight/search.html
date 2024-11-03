@@ -106,7 +106,15 @@
             background: 
                 linear-gradient(45deg, transparent 45%, #333 45%, #333 55%, transparent 55%),
                 linear-gradient(-45deg, transparent 45%, #333 45%, #333 55%, transparent 55%);
+            background-color: #808080;
+            cursor: not-allowed;
         }         
+
+        .first-class {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
     </style>
     <div class="booking-container">
         <h2>Select Your Seats</h2>
@@ -123,10 +131,10 @@
                 <div class="legend-box selected"></div>
                 <span>Selected</span>
             </div>
-            <div class="legend-item">
+            {% comment %} <div class="legend-item">
                 <div class="legend-box cross-box"></div>
                 <span>Not Available</span>
-            </div>
+            </div> {% endcomment %}
         </div>
         <div class="flight-layout">
             {% for row in seat_layout %}
@@ -150,7 +158,7 @@
                 <form action="{% url 'review' %}" method="GET" style="display: flex;">
                     <input type="hidden" name="busID" value="{{busID}}">
                     <input type="hidden" name="date" value="{{ depart_date | date:'d-m-Y' }}">
-                    <input type="hidden" name="seatClass" value="{{ seatClass }}">
+                    <input type="hidden" id="seatClass" name="seatClass" value="{{ seatClass }}">
                     <input type="hidden" id="selectedSeatsCount" name="selectedSeatsCount" value="{{0}}">
                     <input type="hidden" id="selectedSeats" name="selectedSeats" value="">
                     <button class="btn btn-primary btn-danger o-b" type="submit">
@@ -164,8 +172,17 @@
         const seats = JSON.parse(document.getElementById('seats').value);
         const selectedSeats = new Set();
         const seatLayout = document.querySelectorAll('.seat');
+        const seatClass = document.getElementById('seatClass').value;
 
         console.log(seats);  // Debugging statement
+        if (seatClass === 'First') {
+            document.querySelectorAll('.seat-col-1').forEach(seat => {
+                seat.classList.add('first-class');
+            });
+            document.querySelectorAll('.seat-col-2').forEach(seat => {
+                seat.style.display = 'none';
+            });
+        }
 
         function createSeatLayout() {            
             seatLayout.forEach(seatDiv => {
@@ -217,5 +234,6 @@
 
         // Initialize the seat layout
         createSeatLayout();
+        
     </script>
 {% endblock %}

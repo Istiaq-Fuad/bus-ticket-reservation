@@ -30,6 +30,8 @@ except:
 def index(request):
     min_date = f"{datetime.now().date().year}-{datetime.now().date().month}-{datetime.now().date().day}"
     max_date = f"{datetime.now().date().year if (datetime.now().date().month+3)<=12 else datetime.now().date().year+1}-{(datetime.now().date().month + 3) if (datetime.now().date().month+3)<=12 else (datetime.now().date().month+3-12)}-{datetime.now().date().day}"
+    places = Place.objects.all()
+
     if request.method == "POST":
         origin = request.POST.get("Origin")
         destination = request.POST.get("Destination")
@@ -43,11 +45,14 @@ def index(request):
                 "destination": destination,
                 "depart_date": depart_date,
                 "seat": seat.lower(),
+                "places": places,
             },
         )
     else:
         return render(
-            request, "flight/index.html", {"min_date": min_date, "max_date": max_date}
+            request,
+            "flight/index.html",
+            {"min_date": min_date, "max_date": max_date, "places": places},
         )
 
 
@@ -139,15 +144,36 @@ def flight(request):
     seat_class = request.GET.get("SeatClass")
     depart_day = depart_date.strftime("%A").title()
 
-    destination = Place.objects.get(code=d_place.upper())
-    origin = Place.objects.get(code=o_place.upper())
-    depart_day = Week.objects.filter(name=depart_day).first()
+    try:
+        destination = Place.objects.get(code=d_place.upper())
+        origin = Place.objects.get(code=o_place.upper())
+        depart_day = Week.objects.filter(name=depart_day).first()
 
-    bus = Bus.objects.filter(
-        origin=origin, destination=destination, depart_day=depart_day
-    ).first()
+        bus = Bus.objects.filter(
+            origin=origin,
+            destination=destination,
+            depart_day=depart_day,
+            seat_class=seat_class.upper(),
+        ).first()
 
-    seats = Seat.objects.filter(bus_id=bus)
+        seats = Seat.objects.filter(bus_id=bus)
+    except Exception as e:
+        return render(
+            request,
+            "flight/empty.html",
+            {
+                "error": "There was an error processing your request. Please try again.",
+            },
+        )
+
+    if not bus:
+        return render(
+            request,
+            "flight/empty.html",
+            {
+                "error": "No buses found for the selected route or date.",
+            },
+        )
 
     seat_layout = [
         ["A1", "A2", "A3", "A4"],

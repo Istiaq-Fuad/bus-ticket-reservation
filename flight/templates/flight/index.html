@@ -25,21 +25,22 @@
                             <label for="flight-from">From: </label>
                             <input type="text" name="Origin" placeholder="From" id="flight-from" class="form-control mr-sm-3" onblur="hideplaces(this)" data-value="{{origin | lower}}" data-list="places_from" autocomplete="off" value="{{origin | upper}}">  <!--list="places_from"-->
                             <div id="places_from" class="places_box">
-                                <div class="each_places_from_list places__list" data-value="DHK" onclick="selectplace(this)">Dhaka (DHK)</div>
-                                <div class="each_places_from_list places__list" data-value="RAJ" onclick="selectplace(this)">Rajshahi (RAJ)</div>
-                                <div class="each_places_from_list places__list" data-value="KHU" onclick="selectplace(this)">Khulna (KHU)</div>
-                                <div class="each_places_from_list places__list" data-value="NOK" onclick="selectplace(this)">Noakhali (NOK)</div>
+                                {%for place in places.all%}
+                                    <div class="each_places_from_list places__list" data-value="{{place.code}}" onclick="selectplace(this)">{{place.city}} ({{place.code}})</div>
+                                {% endfor %}
                             </div>
                         </div>
                         <div class="input-row">
                             <label for="flight_to">To: </label>
                             <input type="text" name="Destination" placeholder="To" id="flight-to" class="form-control mr-sm-3" onblur="hideplaces(this)" data-value="{{destination | lower}}" data-list="places_to" autocomplete="off" value="{{destination | upper}}">
                             <div id="places_to" class="places_box">
-                                <div class="each_places_from_list places__list" data-value="DHK" onclick="selectplace(this)">Dhaka (DHK)</div>
+                                {% comment %} <div class="each_places_from_list places__list" data-value="DHK" onclick="selectplace(this)">Dhaka (DHK)</div>
                                 <div class="each_places_from_list places__list" data-value="RAJ" onclick="selectplace(this)">Rajshahi (RAJ)</div>
-                                <div class="each_places_from_list places__list" data-value="KHU" onclick="selectplace(this)">Khulna (KHU)</div>
-                                <div class="each_places_from_list places__list" data-value="NOK" onclick="selectplace(this)">Noakhali (NOK)</div>
-                                </div>
+                                <div class="each_places_from_list places__list" data-value="KHU" onclick="selectplace(this)">Khulna (KHU)</div> {% endcomment %}
+                                {%for place in places.all%}
+                                    <div class="each_places_from_list places__list" data-value="{{place.code}}" onclick="selectplace(this)">{{place.city}} ({{place.code}})</div>
+                                {% endfor %}
+                            </div>
                         </div>
                         <div class="input-row">
                             <label for="depart_date">Departure Date: </label>
@@ -50,7 +51,7 @@
                             <select name="SeatClass" id="SeatType" class="form-control mr-sm-2 selectpicker">
                                 <option value="Economy" {% if seat == 'Economy' %}selected{% endif %}>Economy</option>
                                 <option value="Sleeper" {% if seat == 'Sleeper' %}selected{% endif %}>Sleeper</option>
-                                <option value="First" {% if seat == 'First' %}selected{% endif %}>First</option>
+                                <option value="First" {% if seat == 'First' %}selected{% endif %}>First Class</option>
                             </select>
                         </div>
                         <div class="input-row">
