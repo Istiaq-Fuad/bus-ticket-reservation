@@ -7,7 +7,7 @@ from django.db import IntegrityError, transaction
 from django.shortcuts import get_object_or_404
 
 from datetime import datetime
-import math
+import json
 from .models import *
 from capstone.utils import render_to_pdf, createticket
 
@@ -149,11 +149,33 @@ def flight(request):
     departdate = request.GET.get("DepartDate")
     depart_date = datetime.strptime(departdate, "%Y-%m-%d")
     seat_class = request.GET.get("SeatClass")
+    depart_day = depart_date.strftime("%A").title()
 
     destination = Place.objects.get(code=d_place.upper())
     origin = Place.objects.get(code=o_place.upper())
+    depart_day = Week.objects.filter(name=depart_day).first()
 
-    bus = Bus.objects.filter(origin=origin, destination=destination).first()
+    bus = Bus.objects.filter(
+        origin=origin, destination=destination, depart_day=depart_day
+    ).first()
+
+    seats = Seat.objects.filter(bus_id=bus)
+
+    seat_layout = [
+        ["A1", "A2", "A3", "A4"],
+        ["B1", "B2", "B3", "B4"],
+        ["C1", "C2", "C3", "C4"],
+        ["D1", "D2", "D3", "D4"],
+        ["E1", "E2", "E3", "E4"],
+        ["F1", "F2", "F3", "F4"],
+        ["G1", "G2", "G3", "G4"],
+        ["H1", "H2", "H3", "H4"],
+        ["I1", "I2", "I3", "I4"],
+        ["J1", "J2", "J3", "J4"],
+        ["K1", "K2", "K3", "K4", "K5"],
+    ]
+
+    seats = {seat.seat_code: seat.is_available for seat in seats}
 
     return render(
         request,
@@ -163,6 +185,8 @@ def flight(request):
             "origin": origin,
             "seatClass": seat_class.capitalize(),
             "depart_date": depart_date,
+            "seats": json.dumps(seats),
+            "seat_layout": seat_layout,
         },
     )
 
@@ -226,12 +250,9 @@ def book(request):
             )
 
             try:
-                with transaction.atomic():
-                    for seat_code in selected_seats_list:
-                        seat = Seat.objects.create(bus_id=bus, seat_code=seat_code)
-                        seats.append(seat)
-            except IntegrityError as e:
-                pass
+                for seat_code in selected_seats_list:
+                    seat = Seat.objects.get(bus_id=bus, seat_code=seat_code)
+                    seats.append(seat)
             except Exception as e:
                 return HttpResponse(e)
 

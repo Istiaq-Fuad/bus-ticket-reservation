@@ -20,11 +20,31 @@
             font-family: Arial, sans-serif;
         }
 
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* Flight layout container */
         .flight-layout {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin: 20px 0;
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Row container */
+        .seat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            gap: 80px; /* Space between left and right columns */
+        }
+
+        /* Column containers */
+        .seat-col-1,
+        .seat-col-2 {
+            display: flex;
+            gap: 10px; /* Space between seats in the same column */
         }
 
         .seat {
@@ -48,16 +68,6 @@
             cursor: not-allowed;
         }
 
-        .reserved-female {
-            background-color: #FFB6C1;
-            border-color: #FF69B4;
-        }
-
-        .reserved-male {
-            background-color: #ADD8E6;
-            border-color: #4169E1;
-        }
-
         .selected {
             background-color: #90EE90;
             border-color: #32CD32;
@@ -71,7 +81,10 @@
             display: flex;
             gap: 20px;
             margin-top: 20px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
         }
 
         .legend-item {
@@ -87,21 +100,16 @@
             border-radius: 4px;
         }
 
-        {% comment %} .selected-seats {
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f5f5f5;
-            border-radius: 8px;
-        } {% endcomment %}
 
-        .flight-details-btn {
-            margin-top: 20px;	
-        }
+        .cross-box {
+            border: 1px solid #333;
+            background: 
+                linear-gradient(45deg, transparent 45%, #333 45%, #333 55%, transparent 55%),
+                linear-gradient(-45deg, transparent 45%, #333 45%, #333 55%, transparent 55%);
+        }         
     </style>
     <div class="booking-container">
         <h2>Select Your Seats</h2>
-        <div class="flight-layout" id="flightLayout"></div>
-        
         <div class="legend">
             <div class="legend-item">
                 <div class="legend-box booked"></div>
@@ -112,23 +120,31 @@
                 <span>Available</span>
             </div>
             <div class="legend-item">
-                <div class="legend-box reserved-female"></div>
-                <span>Reserved for Female</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-box reserved-male"></div>
-                <span>Reserved for Male</span>
-            </div>
-            <div class="legend-item">
                 <div class="legend-box selected"></div>
                 <span>Selected</span>
             </div>
+            <div class="legend-item">
+                <div class="legend-box cross-box"></div>
+                <span>Not Available</span>
+            </div>
         </div>
-        {% comment %} 
-        <div class="selected-seats">
-            <h3>Selected Seats:</h3>
-            <div id="selectedSeatsList"></div>
-        </div> {% endcomment %}
+        <div class="flight-layout">
+            {% for row in seat_layout %}
+            <div class="seat-row">
+                <div class="seat-col-1">
+                    <div class="seat">{{ row.0 }}</div>
+                    <div class="seat">{{ row.1 }}</div>
+                </div>
+                <div class="seat-col-2">
+                    <div class="seat">{{ row.2 }}</div>
+                    <div class="seat">{{ row.3 }}</div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <input type="hidden" id="seats" name="seats" value="{{ seats }}">
+        <input type="hidden" id="seatLayout" name="seatLayout" value="{{ seat_layout }}">
 
         <div class="flight-details-btn">
                 <form action="{% url 'review' %}" method="GET" style="display: flex;">
@@ -145,68 +161,37 @@
     </div>
 
     <script>
-        const seatLayout = [
-            ['A1', 'A2', 'A3', 'A4'],
-            ['B1', 'B2', 'B3', 'B4'],
-            ['C1', 'C2', 'C3', 'C4'],
-            ['D1', 'D2', 'D3', 'D4'],
-            ['E1', 'E2', 'E3', 'E4'],
-            ['F1', 'F2', 'F3', 'F4'],
-            ['G1', 'G2', 'G3', 'G4'],
-            ['H1', 'H2', 'H3', 'H4'],
-            ['I1', 'I2', 'I3', 'I4'],
-            ['J1', 'J2', 'J3', 'J4'],
-            ['K1', 'K2', 'K3', 'K4', 'K5'],
-        ];
-
-        const bookedSeats = ['A1', 'B2', 'C3', 'D4'];
-        const femaleSeats = ['A3', 'B1', 'C4'];
-        const maleSeats = ['D2', 'E4'];
+        const seats = JSON.parse(document.getElementById('seats').value);
         const selectedSeats = new Set();
+        const seatLayout = document.querySelectorAll('.seat');
 
-        function createSeatLayout() {
-            const flightLayout = document.getElementById('flightLayout');
-            flightLayout.innerHTML = '';
+        console.log(seats);  // Debugging statement
 
-            seatLayout.forEach(row => {
-                row.forEach(seatNumber => {
-                    const seat = document.createElement('div');
-                    seat.className = 'seat';
-                    seat.setAttribute('data-seat', seatNumber);
-                    
-                    if (bookedSeats.includes(seatNumber)) {
-                        seat.classList.add('booked');
-                    } else if (femaleSeats.includes(seatNumber)) {
-                        seat.classList.add('reserved-female');
-                    } else if (maleSeats.includes(seatNumber)) {
-                        seat.classList.add('reserved-male');
+        function createSeatLayout() {            
+            seatLayout.forEach(seatDiv => {
+                if (seatDiv.textContent in seats) {
+                    if (!seats[seatDiv.textContent]) {
+                        console.log("test");
+                        seatDiv.classList.add('booked');
                     } else {
-                        seat.classList.add('available');
+                        seatDiv.addEventListener('click', () => toggleSeat(seatDiv));
                     }
-
-                    if (selectedSeats.has(seatNumber)) {
-                        seat.classList.add('selected');
-                    }
-
-                    seat.textContent = seatNumber;
-                    seat.addEventListener('click', () => toggleSeat(seatNumber));
-                    flightLayout.appendChild(seat);
-                });
+                } else {
+                    seatDiv.style.display = 'none';
+                }
             });
             updateSelectedSeatsList();
         }
 
-        function toggleSeat(seatNumber) {
-            if (bookedSeats.includes(seatNumber)) return;
+        function toggleSeat(seatDiv) {
+            seatNumber = seatDiv.textContent;
 
-            const seatElement = document.querySelector(`[data-seat="${seatNumber}"]`);
-            
             if (selectedSeats.has(seatNumber)) {
                 selectedSeats.delete(seatNumber);
-                seatElement.classList.remove('selected');
+                seatDiv.classList.remove('selected');
             } else {
                 selectedSeats.add(seatNumber);
-                seatElement.classList.add('selected');
+                seatDiv.classList.add('selected');
             }
             
             updateSelectedSeatsList();
