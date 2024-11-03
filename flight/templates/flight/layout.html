@@ -50,7 +50,9 @@
           {% else %}
             <li class="nav-item dropdown my-account">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                My Account
+                {% if user.is_authenticated %}
+                  {{user.username}}
+                {% endif %}
               </a>
               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                 <div class="dropdown-header" style="display: flex; padding: .5rem 1.2rem">

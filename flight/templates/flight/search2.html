@@ -1,0 +1,236 @@
+{% extends 'flight/layout.html' %}
+
+{% load static %}
+
+{% block head %}
+    <title>Search | Flight</title>
+    <link rel="stylesheet" href="{% static 'css/search_style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/search2_style.css' %}">
+    <!--<script src="{% static 'js/search.js' %}"></script>-->
+    <script src="{% static 'js/search2.js' %}"></script>
+{% endblock %}
+
+{% block body %}
+<!DOCTYPE html>
+    <style>
+        .booking-container {
+            max-width: 600px;
+            margin: 2rem auto;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+
+        .flight-layout {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .seat {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .seat:hover:not(.booked) {
+            background-color: #e0e0e0;
+        }
+
+        .booked {
+            background-color: #808080;
+            cursor: not-allowed;
+        }
+
+        .reserved-female {
+            background-color: #FFB6C1;
+            border-color: #FF69B4;
+        }
+
+        .reserved-male {
+            background-color: #ADD8E6;
+            border-color: #4169E1;
+        }
+
+        .selected {
+            background-color: #90EE90;
+            border-color: #32CD32;
+        }
+
+        .available {
+            background-color: #fff;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .selected-seats {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f5f5f5;
+            border-radius: 8px;
+        }
+
+        .flight-details-btn {
+            margin-top: 20px;	
+        }
+    </style>
+    <div class="booking-container">
+        <h2>Select Your Seats</h2>
+        <div class="flight-layout" id="flightLayout"></div>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box booked"></div>
+                <span>Booked</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box available"></div>
+                <span>Available</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box reserved-female"></div>
+                <span>Reserved for Female</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box reserved-male"></div>
+                <span>Reserved for Male</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box selected"></div>
+                <span>Selected</span>
+            </div>
+        </div>
+
+        <div class="selected-seats">
+            <h3>Selected Seats:</h3>
+            <div id="selectedSeatsList"></div>
+        </div>
+        <div class="flight-details-btn">
+                <form action="{% url 'review' %}" method="GET" style="display: flex;">
+                    <input type="hidden" name="flight1Id" value="{{flightID}}">
+                    <input type="hidden" name="flight1Date" value="{{ destination | date:'d-m-Y' }}">
+                    <input type="hidden" name="seatClass" value="{{ seat }}">
+                    <input type="hidden" id="selectedSeatsCount" name="selectedSeatsCount" value="{{0}}">
+                    <button class="btn btn-primary btn-danger o-b" type="submit">
+                        Book Bus <!--&#8594;-->
+                    </button>
+                </form>
+        </div>
+    </div>
+
+    <script>
+        const seatLayout = [
+            ['A1', 'A2', 'A3', 'A4'],
+            ['B1', 'B2', 'B3', 'B4'],
+            ['C1', 'C2', 'C3', 'C4'],
+            ['D1', 'D2', 'D3', 'D4'],
+            ['E1', 'E2', 'E3', 'E4'],
+            ['F1', 'F2', 'F3', 'F4'],
+            ['G1', 'G2', 'G3', 'G4'],
+            ['H1', 'H2', 'H3', 'H4'],
+            ['I1', 'I2', 'I3', 'I4'],
+            ['J1', 'J2', 'J3', 'J4'],
+            ['K1', 'K2', 'K3', 'K4', 'K5'],
+        ];
+
+        const bookedSeats = ['A1', 'B2', 'C3', 'D4'];
+        const femaleSeats = ['A3', 'B1', 'C4'];
+        const maleSeats = ['D2', 'E4'];
+        const selectedSeats = new Set();
+
+        function createSeatLayout() {
+            const flightLayout = document.getElementById('flightLayout');
+            flightLayout.innerHTML = '';
+
+            seatLayout.forEach(row => {
+                row.forEach(seatNumber => {
+                    const seat = document.createElement('div');
+                    seat.className = 'seat';
+                    seat.setAttribute('data-seat', seatNumber);
+                    
+                    if (bookedSeats.includes(seatNumber)) {
+                        seat.classList.add('booked');
+                    } else if (femaleSeats.includes(seatNumber)) {
+                        seat.classList.add('reserved-female');
+                    } else if (maleSeats.includes(seatNumber)) {
+                        seat.classList.add('reserved-male');
+                    } else {
+                        seat.classList.add('available');
+                    }
+
+                    if (selectedSeats.has(seatNumber)) {
+                        seat.classList.add('selected');
+                    }
+
+                    seat.textContent = seatNumber;
+                    seat.addEventListener('click', () => toggleSeat(seatNumber));
+                    flightLayout.appendChild(seat);
+                });
+            });
+            updateSelectedSeatsList();
+        }
+
+        function toggleSeat(seatNumber) {
+            if (bookedSeats.includes(seatNumber)) return;
+
+            const seatElement = document.querySelector(`[data-seat="${seatNumber}"]`);
+            
+            if (selectedSeats.has(seatNumber)) {
+                selectedSeats.delete(seatNumber);
+                seatElement.classList.remove('selected');
+            } else {
+                selectedSeats.add(seatNumber);
+                seatElement.classList.add('selected');
+            }
+            
+            updateSelectedSeatsList();
+        }
+
+        function updateSelectedSeatsCount() {
+            const selectedSeatsCountElement = document.getElementById('selectedSeatsCount');
+            if (selectedSeatsCountElement) {
+                selectedSeatsCountElement.value = selectedSeats.size;
+                console.log(`Updated selectedSeatsCount to ${selectedSeats.size}`);  // Debugging statement
+            } else {
+                console.error('selectedSeatsCount element not found');
+            }
+        }
+
+        function updateSelectedSeatsList() {
+            const selectedSeatsList = document.getElementById('selectedSeatsList');
+            if (selectedSeats.size === 0) {
+                selectedSeatsList.textContent = 'No seats selected';
+            } else {
+                selectedSeatsList.textContent = Array.from(selectedSeats).join(', ');
+            }
+            updateSelectedSeatsCount();
+        }
+
+        // Initialize the seat layout
+        createSeatLayout();
+    </script>
+{% endblock %}
