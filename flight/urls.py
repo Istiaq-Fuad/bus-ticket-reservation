@@ -17,8 +17,4 @@ urlpatterns = [
     path("bus/ticket/cancel", views.cancel_ticket, name="cancelticket"),
     path("bus/ticket/resume", views.resume_booking, name="resumebooking"),
     path("apply-coupon/<str:coupon_code>", views.apply_coupon, name="applycoupon"),
-    path("contact", views.contact, name="contact"),
-    path("privacy-policy", views.privacy_policy, name="privacypolicy"),
-    path("terms-and-conditions", views.terms_and_conditions, name="termsandconditions"),
-    path("about-us", views.about_us, name="aboutus"),
 ]
