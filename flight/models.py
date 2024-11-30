@@ -87,17 +87,15 @@ class Ticket(models.Model):
     )
     num_passenger = models.IntegerField(null=True)
     bus = models.ForeignKey(
-        Bus, on_delete=models.CASCADE, related_name="tickets", blank=True, null=True
+        Bus, on_delete=models.CASCADE, related_name="buses", blank=True, null=True
     )
     ref_no = models.CharField(max_length=10, blank=True)
     seats = models.ManyToManyField(Seat, related_name="tickets")
     bus_date = models.DateTimeField(blank=True, null=True)
     bus_fare = models.FloatField(blank=True, null=True)
     other_charges = models.FloatField(blank=True, null=True)
-    # coupon_used = models.CharField(max_length=15, blank=True)
-    # coupon_discount = models.FloatField(default=0.0)
     coupon_used = models.ForeignKey(
-        Coupon, on_delete=models.CASCADE, related_name="tickets", blank=True, null=True
+        Coupon, on_delete=models.CASCADE, related_name="coupons", blank=True, null=True
     )
     total_fare = models.FloatField(blank=True, null=True)
     seat_class = models.CharField(max_length=20, choices=SEAT_CLASS)

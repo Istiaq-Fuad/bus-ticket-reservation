@@ -189,7 +189,20 @@ def flight(request):
         ["K1", "K2", "K3", "K4", "K5"],
     ]
 
-    seats = {seat.seat_code: seat.is_available for seat in seats}
+    tickets = Ticket.objects.filter(bus_date__date=depart_date)
+
+    # Get the seats associated with those tickets
+    occupied_seats = Seat.objects.filter(tickets__in=tickets)
+
+    # Get all the seats for the bus and filter out the occupied ones
+    all_seats = Seat.objects.filter(bus_id=bus)
+
+    # Create a dictionary with seat codes as keys and availability as values
+    seats = {seat.seat_code: True for seat in all_seats}
+
+    # Mark seats that are already occupied as unavailable
+    for occupied_seat in occupied_seats:
+        seats[occupied_seat.seat_code] = False
 
     return render(
         request,
